@@ -24,15 +24,11 @@ def main():
         
         if(load_URL('http://{}/sw?s=0'.format(ip))):
             get_all()
-        else:
-            error(0)
         return
     
     elif(len(args) == 4 and args[2] == 'get'):
         if(load_URL('http://{}/sw?s=0'.format(ip))):
             get(int(args[3]))
-        else:
-            error(400)
         return
 
     elif(len(args) == 7 and args[2] == 'set'):
@@ -43,22 +39,27 @@ def main():
 
         if(load_URL('http://{ip}/sw?u={user}&p={passwd}&o={out}&f={function}'.format(ip = ip, out = out, function = function, user = user, passwd = passwd))):
             set(out)
-        else:
-            error(400)
         return
 
     else:
-        error(0)
+        error(1)
         return
 
+##
+# @var Errorcode
+# @return void
+#
+# Error codes:
+# 1:    wrong arguments
+# 400+: network connection error
+##
 def error(code):
-    global page, soup
     if(code == 1):
-        print('Syntaxrror, enter {} help for more info.'.format(args[0]))
-    elif(code == 400):
-        print('Networking Error: Page not found.')
+        print('Syntaxrror, enter "{} help" for more info.'.format(args[0]))
+    elif(400 <= code < 600):
+        print('Networking Error: Exited with code {}'.format(code))
     else:
-        print('An unknown Error occured.')
+        print('An unknown Error occured. Error {}'.format(code))
 
 def load_URL(URL):
     global page, soup
@@ -68,6 +69,7 @@ def load_URL(URL):
         soup = BeautifulSoup(page.content, 'html.parser')
         return True
     else:
+        error(page.status_code)
         return False
 
 def print_help():
@@ -108,4 +110,3 @@ def find_outs():
 
 if __name__ == "__main__":
     main()
-
